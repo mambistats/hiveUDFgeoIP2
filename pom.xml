@@ -32,6 +32,14 @@
                                                 <goals>
                                                         <goal>shade</goal>
                                                 </goals>
+                                                <configuration>
+                                                		<relocations>
+                                                				<relocation>
+                                                						<pattern>com.fasterxml.jackson</pattern>
+                                                						<shadedPattern>com.spuul.shaded.com.fasterxml.jackson</shadedPattern>
+                                                				</relocation>
+                                                		</relocations>
+                                                </configuration>
                                         </execution>
                                 </executions>
                         </plugin>

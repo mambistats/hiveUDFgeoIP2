@@ -77,12 +77,14 @@ import org.apache.hadoop.io.Text;
  */
 @UDFType(deterministic = true)
 @Description(
-  name = "geoip2",
-value = "_FUNC_(ip,attribute,database) - looks a property for an IP address from"
-+ "a library loaded\n"
-+ "The GeoIP2 database comes separated. To load the GeoIP2 use ADD FILE.\n"
-+ "Usage:\n"
-+ " > _FUNC_(\"8.8.8.8\", \"COUNTRY_CODE\", \"./GeoIP2-Country.mmdb\")")
+		name = "geoip2",
+		value = "_FUNC_(ip,attribute,database) - looks a property for an IP address from"
+				+ "a library loaded\n"
+				+ "The GeoIP2 database comes separated. To load the GeoIP2 use ADD FILE.\n"
+				+ "Usage:\n"
+				+ " > _FUNC_(\"8.8.8.8\", \"COUNTRY_CODE\", \"./GeoIP2-Country.mmdb\")\n"
+				+ "see https://dev-jira.1and1.org/browse/MAMBISTATS-611"
+		)
 public class GeoIP2 extends GenericUDF {
 
         private ObjectInspectorConverters.Converter[] converters;
@@ -197,6 +199,7 @@ public class GeoIP2 extends GenericUDF {
                     || dataType.equals("POSTAL_CODE")
                     || dataType.equals("LONGITUDE")
                     || dataType.equals("LATITUDE")
+                    || dataType.equals("ACCURACY")
                 ) {
                         if (dataType.equals("COUNTRY_CODE") || dataType.equals("COUNTRY_NAME")) {
                                 Country country = response.getCountry();
@@ -224,15 +227,25 @@ public class GeoIP2 extends GenericUDF {
                                 Postal postal = response.getPostal();
                                 return postal.getCode();
                         }
-                        if (dataType.equals("LONGITUDE") || dataType.equals("LATITUDE")) {
-                                Location location = response.getLocation();
-                                if (dataType.equals("LONGITUDE")) {
-                                        return location.getLongitude().toString();
-                                }
-                                else {
-                                        return location.getLatitude().toString();
-                                }
-                        }
+                        if (dataType.equals("LONGITUDE")
+                            	|| dataType.equals("LATITUDE")
+                            	|| dataType.equals("ACCURACY")
+                            	) {
+                                    Location location = response.getLocation();
+                                    if (dataType.equals("LONGITUDE")) {
+                                            return location.getLongitude().toString();
+                                    }
+                                    else if (dataType.equals("LATITUDE")) {
+                                            return location.getLatitude().toString();
+                                    }
+                                    else if (dataType.equals("ACCURACY")) {
+                                        return location.getAccuracyRadius().toString();                                	
+                                    }
+                                    else {
+                                    	return "";
+                                    }
+
+                            }
                         return "";
                 }
                 else {
